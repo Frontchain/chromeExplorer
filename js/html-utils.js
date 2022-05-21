@@ -1,7 +1,3 @@
-/*********************************
- *        HTML CREATORS          * 
- *********************************/
-
 const createErrorHTML = (msg) => {
   const span = document.createElement("span");
   span.className = "frontchain-error";
@@ -15,6 +11,15 @@ const createAddress = (param) => {
   a.href = `${window.location.origin}/address/${param.value}`;
   a.target = "_blank";
   a.innerHTML = param.value;
+
+  return a;
+}
+
+const createTransaction = (hash) => {
+  const a = document.createElement("a");
+  a.href = `${window.location.origin}/tx/${hash}`;
+  a.target = "_blank";
+  a.innerHTML = hash;
 
   return a;
 }
@@ -38,8 +43,6 @@ const createParamHTML = (param) => {
   const type = document.createElement("div");
   type.className = "frontchain-type";
   type.innerHTML = param.type;
-
-  console.log(param);
 
   const value = document.createElement("div");
   value.className = "frontchain-value";
@@ -84,32 +87,89 @@ const createDecoderHTML = (data) => {
   return wrapper;
 }
 
+const createTxRowHTML = (hash, signature, position) => {
+  const hashWrapper = document.createElement("div");
+  hashWrapper.className = "frontchain-txhash";
+  hashWrapper.appendChild(hash);
+
+  const signatureWrapper = document.createElement("div");
+  signatureWrapper.className = "frontchain-signature";
+  signatureWrapper.appendChild(signature);
+
+  const positionWrapper = document.createElement("div");
+  positionWrapper.className = "frontchain-position";
+  positionWrapper.appendChild(position);
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "frontchain-prevtx";
+  wrapper.appendChild(hashWrapper);
+  wrapper.appendChild(signatureWrapper);
+  wrapper.appendChild(positionWrapper);
+
+  return wrapper;
+}
+
+const createPreviousTransactionsHTML = (trxs) => {
+  const hashTitle = document.createElement("strong");
+  hashTitle.innerHTML = "Transaction Hash";
+
+  const signatureTitle = document.createElement("strong");
+  signatureTitle.innerHTML = "Signature";
+
+  const positionTitle = document.createElement("strong");
+  positionTitle.innerHTML = "Position";
+
+  const table = document.createElement("div");
+  table.className = "frontchain-table";
+  table.appendChild(createTxRowHTML(
+    hashTitle,
+    signatureTitle,
+    positionTitle
+  ));
+
+  for (const tx of trxs) {
+    const signature = tx.data.slice(0, 10);
+
+    table.appendChild(createTxRowHTML(
+      createTransaction(tx.hash),
+      document.createTextNode(signature),
+      document.createTextNode(tx.transactionIndex)
+    ));
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "frontchain-table-wrapper";
+  wrapper.appendChild(table);
+
+  return wrapper;
+}
+
 const createRowHTML = (title, element) => {
   const hr = document.createElement("hr");
   hr.className = "hr-space";
 
-  const leftCol = document.createElement("div");
-  leftCol.className = "col-md-9";
+  const rightCol = document.createElement("div");
+  rightCol.className = "col-md-9 frontchain-right";
 
   if (Array.isArray(element)) {
     for (const e of element) {
-      leftCol.appendChild(e);
+      rightCol.appendChild(e);
     }
   } else if (element) {
-    leftCol.appendChild(element);
+    rightCol.appendChild(element);
   }
 
-  const rightCol = document.createElement("div");
-  rightCol.className = "col-md-3 font-weight-bold font-weight-sm-normal mb-1 mb-md-0"
-  rightCol.innerHTML = title
+  const leftCol = document.createElement("div");
+  leftCol.className = "col-md-3 font-weight-bold font-weight-sm-normal mb-1 mb-md-0"
+  leftCol.innerHTML = title
 
   const row = document.createElement("div");
   row.className = "row";
-  row.appendChild(rightCol);
   row.appendChild(leftCol);
+  row.appendChild(rightCol);
 
   const container = document.createElement("div");
-  container.id = "frontchain-decoder";
+  container.id = "frontchain-extra";
   container.appendChild(hr);
   container.appendChild(row);
 
@@ -121,70 +181,3 @@ const insertBefore = (id, element) => {
   const parentTarget = document.getElementById("ContentPlaceHolder1_maintable");
   parentTarget.insertBefore(element, target);
 }
-
-/*********************************
- *            MODULES            * 
- *********************************/
-
-const inputDecoder = async () => {
-  const before = "ContentPlaceHolder1_privatenotediv";
-  const title = "Decoded Input:";
-
-  const rawInput = document.getElementById("rawinput");
-  const input = rawInput.textContent.trim();
-
-  if (input.length < 10) {
-    return;
-  }
-
-  const signature = input.slice(0, 10);
-  const data = `0x${input.slice(10)}`;
-
-  const querySignature = await fetch(`https://www.4byte.directory/api/v1/signatures/?hex_signature=${signature}`);
-  const response = await querySignature.json();
-
-  if (response.results.length === 0) {
-    const error = createErrorHTML("Signature doesn't exists on 4byte.directory");
-    insertBefore(before, createRowHTML(title, error));
-    return;
-  }
-
-  const possibilities = [];
-  for(const m of response.results) {
-    const method = m.text_signature;
-    const params = Array.from(method.matchAll(/.*?\((.*)\)/g),  m => m[1])[0].split(",");
-    try {
-      const decoded = ethers.utils.defaultAbiCoder.decode(params, data);
-      const decodedParams = [];
-      for (const i in decoded) {
-        decodedParams.push({
-          type: params[i],
-          value: decoded[i]
-        });
-      }
-
-      const possibility = {
-        method: method,
-        params: decodedParams
-      };
-
-      possibilities.push(createDecoderHTML(possibility));
-    } catch (e) {
-      continue;
-    }
-  }
-
-  if (possibilities.length === 0) {
-    const error = createErrorHTML("Could't decode the data");
-    insertBefore(before, createRowHTML(title, error));
-    return;
-  }
-
-  insertBefore(before, createRowHTML(title, possibilities));
-}
-
-const main = async () => {
-  await inputDecoder();
-}
-
-main().then(() => {});

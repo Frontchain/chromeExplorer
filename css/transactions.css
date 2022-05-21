@@ -79,3 +79,27 @@ main#content .container > .border-top-alt.py-3:first-child {
   display: flex;
   flex-direction: column;
 }
+
+.frontchain-table-wrapper {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.frontchain-table {
+  display: table;
+  width: 100%;
+}
+
+.frontchain-prevtx {
+  display: table-row;
+  line-height: 2.5em;
+}
+
+.frontchain-txhash, .frontchain-signature, .frontchain-position {
+  display: table-cell;
+  border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+.frontchain-table > .frontchain-prevtx:last-child > * {
+  border-bottom: 0;
+}

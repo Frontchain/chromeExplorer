@@ -9,7 +9,13 @@
       "matches": ["https://bscscan.com/tx/*", "https://etherscan.io/tx/*", "https://polygonscan.com/tx/*"],
       "css": ["css/transactions.css"],
       "run_at": "document_end",
-      "js": ["ethers-5.6.umd.min.js", "content-scripts.js"]
+      "js": [
+        "vendor/ethers-5.6.umd.min.js",
+        "js/networks.js",
+        "js/html-utils.js",
+        "js/input-decoder.js",
+        "js/previous-transactions.js"
+      ]
     },
     {
       "matches": ["https://bscscan.com/token/*"],
