@@ -1,3 +1,7 @@
+/*********************************
+ *        HTML CREATORS          * 
+ *********************************/
+
 const createErrorHTML = (msg) => {
   const span = document.createElement("span");
   span.className = "frontchain-error";
@@ -80,7 +84,7 @@ const createDecoderHTML = (data) => {
   return wrapper;
 }
 
-const createRowHTML = (element) => {
+const createRowHTML = (title, element) => {
   const hr = document.createElement("hr");
   hr.className = "hr-space";
 
@@ -97,7 +101,7 @@ const createRowHTML = (element) => {
 
   const rightCol = document.createElement("div");
   rightCol.className = "col-md-3 font-weight-bold font-weight-sm-normal mb-1 mb-md-0"
-  rightCol.innerHTML = "Decoded Input:"
+  rightCol.innerHTML = title
 
   const row = document.createElement("div");
   row.className = "row";
@@ -112,14 +116,20 @@ const createRowHTML = (element) => {
   return container;
 }
 
-const insertDecoder = (element) => {
-  const target = document.getElementById("ContentPlaceHolder1_privatenotediv");
+const insertBefore = (id, element) => {
+  const target = document.getElementById(id);
   const parentTarget = document.getElementById("ContentPlaceHolder1_maintable");
   parentTarget.insertBefore(element, target);
 }
 
+/*********************************
+ *            MODULES            * 
+ *********************************/
 
-const main = async () => {
+const inputDecoder = async () => {
+  const before = "ContentPlaceHolder1_privatenotediv";
+  const title = "Decoded Input:";
+
   const rawInput = document.getElementById("rawinput");
   const input = rawInput.textContent.trim();
 
@@ -130,16 +140,12 @@ const main = async () => {
   const signature = input.slice(0, 10);
   const data = `0x${input.slice(10)}`;
 
-  console.log(signature, data);
-
   const querySignature = await fetch(`https://www.4byte.directory/api/v1/signatures/?hex_signature=${signature}`);
   const response = await querySignature.json();
 
-  console.log("response", response);
-
   if (response.results.length === 0) {
     const error = createErrorHTML("Signature doesn't exists on 4byte.directory");
-    insertDecoder(createRowHTML(error));
+    insertBefore(before, createRowHTML(title, error));
     return;
   }
 
@@ -164,18 +170,21 @@ const main = async () => {
 
       possibilities.push(createDecoderHTML(possibility));
     } catch (e) {
-      console.log(e);
       continue;
     }
   }
 
   if (possibilities.length === 0) {
     const error = createErrorHTML("Could't decode the data");
-    insertDecoder(createRowHTML(error));
+    insertBefore(before, createRowHTML(title, error));
     return;
   }
 
-  insertDecoder(createRowHTML(possibilities));
+  insertBefore(before, createRowHTML(title, possibilities));
+}
+
+const main = async () => {
+  await inputDecoder();
 }
 
 main().then(() => {});

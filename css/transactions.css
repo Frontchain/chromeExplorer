@@ -1,6 +1,18 @@
+/* REMOVE ADS */
+
 main#content .container ins {
   display: none !important;
 }
+
+main#content .container:last-child .container.mt-4:last-child {
+  display: none !important;
+}
+
+main#content .container > .border-top-alt.py-3:first-child {
+  display: none !important;
+}
+
+/* INPUT EXPANDED BY DEFAULT */
 
 #ContentPlaceHolder1_collapseContent.collapse {
   display: block !important;
@@ -13,6 +25,8 @@ main#content .container ins {
 #ContentPlaceHolder1_collapsedLink_span {
   display: none !important;
 }
+
+/* CUSTOM STYLES */
 
 .frontchain-error {
   background: #E53935;

@@ -1,0 +1,7 @@
+main#content section.bg-dark .col-12.col-lg-5 {
+  display: none !important;
+}
+
+main#content section.bg-dark .col-md-12.col-lg-7 .text-white-70 {
+  display: none !important;
+}

@@ -1,0 +1,7 @@
+#ContentPlaceHolder1_divSummary > .row:first-child + .d-flex {
+  display: none !important;
+}
+
+main#content .container .border-top-alt.py-3 {
+  display: none !important;
+}

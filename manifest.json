@@ -7,9 +7,17 @@
   "content_scripts": [
     {
       "matches": ["https://bscscan.com/tx/*", "https://etherscan.io/tx/*", "https://polygonscan.com/tx/*"],
-      "css": ["explorer.css"],
+      "css": ["css/transactions.css"],
       "run_at": "document_end",
       "js": ["ethers-5.6.umd.min.js", "content-scripts.js"]
+    },
+    {
+      "matches": ["https://bscscan.com/token/*"],
+      "css": ["css/bsc/token-ads.css"]
+    },
+    {
+      "matches": ["https://bscscan.com/"],
+      "css": ["css/bsc/main-ads.css"]
     }
   ]
 }
